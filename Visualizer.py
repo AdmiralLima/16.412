@@ -16,7 +16,8 @@ class Visualizer:
 		self.ymax = ymax
 
 		## Initialize Plot ##
-		figure = plot.gcf()
+		self.figure = plot.gcf()
+		
 		plot.xlim(self.xmin,self.xmax)
 		plot.ylim(self.ymin,self.ymax)
 		plot.grid(True)
@@ -24,12 +25,19 @@ class Visualizer:
 		## Draw Obstacles ##
 		self.obstacles = obstacles
 		for obstacle in self.obstacles:
-			figure.gca().add_artist(plot.Circle(obstacle[0],
+			self.figure.gca().add_artist(plot.Circle(obstacle[0],
 												obstacle[1],
 												color='r',
 												alpha=0.3))
 
+	def draw_initial(self, x):
+		plot.plot((x[0]), (x[1]), 'og')
+
+	def draw_edge(self, x1, x2):
+		plot.plot((x1[0],x2[0]), (x1[1],x2[1]), '.-k')
+
 	def done(self):
 		plot.show()
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+	main()
