@@ -1,12 +1,16 @@
 from sys import maxint
 
+# assumes Problem has methods:
+# - random_state() -> state (tuple)
+# - metric(state1, state2) -> distance (int or float)
+# - intermediate_state(state1, state2, time_step) -> state, input
+
 class RRT(object):
 
     def __init__(self, problem):
         self.P = problem
         self.root = None # not currently used, but could be useful
         self.nodes = [] # list of nodes in tree
-
 
     def build_rrt(self, x_init, x_goal, max_iter):
     ''' Builds RRT, given start state, goal state, and max number of iterations.
@@ -40,7 +44,6 @@ class RRT(object):
     def nearest_neighbor(self, x):
         ''' Returns node in tree with minimum distance to x, as defined by the P.metric function.
         '''
-        i = len(x)
         
         min_dist = maxint
         nearest_node = None
@@ -88,7 +91,7 @@ class RRT(object):
         return None
 
     def get_path(self, x_goal):
-    ''' Returns path from start state to goal state.
+        ''' Returns path from start state to goal state.
 
         Input arguments:
         - x_goal: goal state.
@@ -96,7 +99,7 @@ class RRT(object):
         Returns: 
         - path: list of states.
         - inputs: list of inputs to get from start state to goal state.
-    '''
+        '''
         node = self.get_node(x_goal)
         path = []
         inputs = []
@@ -110,11 +113,11 @@ class RRT(object):
 class Node(object):
     
     def __init__(self, state, parent=None, incoming_edge=None):
-    ''' Input arguments:
+        ''' Input arguments:
         - state: probably represented as a tuple
         - parent: Node object
         - incoming_edge: input that transitions from parent state to this state
-    '''
+        '''
         self.data = data
         self.parent = parent
         self.incoming_edge = incoming_edge
