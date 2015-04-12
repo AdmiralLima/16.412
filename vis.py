@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plot
+from PIL import Image
 
 def main():
 	obs = [((0,0),1), ((2,2),1), ((5,5),2)]
@@ -23,12 +24,15 @@ class Visualizer:
 		plot.grid(True)
 
 		## Draw Obstacles ##
-		self.obstacles = obstacles
-		for obstacle in self.obstacles:
-			self.figure.gca().add_artist(plot.Circle(obstacle[0],
-												obstacle[1],
-												color='r',
-												alpha=0.3))
+		if isinstance(obstacles, (list, tuple)):
+			self.obstacles = obstacles
+			for obstacle in self.obstacles:
+				self.figure.gca().add_artist(plot.Circle(obstacle[0],
+													obstacle[1],
+													color='r',
+													alpha=0.3))
+		elif isinstance(obstacles, Image.Image):
+			plot.imshow(obstacles)
 
 	def draw_initial(self, x):
 		plot.plot((x[0]), (x[1]), 'og')
