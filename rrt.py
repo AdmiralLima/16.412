@@ -7,7 +7,7 @@ class Problem(object):
     def random_state(self):
         raise NotImplementedError( "Should have implemented this" )
 
-    def intermediate_state(self, x1, x2):
+    def new_state(self, x1, x2):
         ''' Selects an input that would move sate x1 towards state x2 and returns 
             the new state together with the input.
 
@@ -16,7 +16,8 @@ class Problem(object):
             - x2: desired state
 
             Returns:
-            - x: a state (hopefully) closer to x2 than x1
+            - x: a state closer to x2 than x1. Can be null if x1 is forbidden or 
+                 no such state exists.
             - u: input required to move from state x1 to x
         '''
         raise NotImplementedError( "Should have implemented this" )
@@ -28,7 +29,7 @@ class Problem(object):
 # assumes Problem has methods:
 # - random_state() -> state (tuple)
 # - metric(state1, state2) -> distance (int or float)
-# - intermediate_state(state1, state2, time_step) -> state, input
+# - new_state(state1, state2, time_step) -> state, input
 
 class RRT(object):
 
@@ -81,7 +82,7 @@ class RRT(object):
 
     def extend(self, x):
         nearest_node = self.nearest_neighbor(x)
-        (x_new, u_new) = self.P.intermediate_state(nearest_node.data, x)
+        (x_new, u_new) = self.P.new_state(nearest_node.data, x)
         if x_new:
             self.add_node(x_new, nearest_node, u_new)
             return x_new
