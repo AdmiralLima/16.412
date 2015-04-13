@@ -29,6 +29,9 @@ class BasicProblem(rrt.Problem):
 	def metric(self, x1, x2):
 		return (x2[0]-x1[0])**2+(x2[1]-x1[1])**2
 
+	def goal_reached(self, x):
+		return False
+
 if __name__ == '__main__':
 	# Problem
 	problem = BasicProblem()
@@ -43,4 +46,6 @@ if __name__ == '__main__':
 		if n.parent:
 			visualizer.draw_edge(n.parent.data, n.data)
 	visualizer.draw_initial(tree.root.data)
+	visualizer.draw_solution([x.data for x in tree.get_path(tree.nodes[-1].data)[0]])
 	visualizer.done()
+

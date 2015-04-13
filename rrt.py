@@ -26,6 +26,13 @@ class Problem(object):
         ''' Metric used by the solver to find nearest neighbors. '''
         raise NotImplementedError( "Should have implemented this" )
 
+    def goal_reached(self, x):
+        ''' Returns True if the state is equal to the goal state or close to it.
+
+            It is up to the user to define what is considered close.
+        '''
+        raise NotImplementedError( "Should have implemented this" )
+
 # assumes Problem has methods:
 # - random_state() -> state (tuple)
 # - metric(state1, state2) -> distance (int or float)
@@ -61,7 +68,7 @@ class RRT(object):
         while counter < max_iter:
             x_rand = self.P.random_state()
             x_new = self.extend(x_rand)
-            if x_new == x_goal:
+            if self.P.goal_reached(x_new):
                 return True
             counter += 1
 

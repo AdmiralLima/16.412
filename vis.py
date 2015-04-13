@@ -40,6 +40,10 @@ class Visualizer:
 	def draw_edge(self, x1, x2):
 		plot.plot((x1[0],x2[0]), (x1[1],x2[1]), '.-k')
 
+	def draw_solution(self, path):
+		for i in xrange(0, len(path)-1):
+			plot.plot((path[i][0],path[i+1][0]), (path[i][1],path[i+1][1]), '.-r')
+
 	def done(self, block=True):
 		plot.show(block=block)
 

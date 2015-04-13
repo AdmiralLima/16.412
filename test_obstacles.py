@@ -41,6 +41,9 @@ class ObstacleProblem(rrt.Problem):
 	def metric(self, x1, x2):
 		return (x2[0]-x1[0])**2+(x2[1]-x1[1])**2
 
+	def goal_reached(self, x):
+		return False
+
 	def generate_obstacles(self, n, radius):
 		i = 0
 		while i < n:

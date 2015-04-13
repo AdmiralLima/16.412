@@ -49,6 +49,9 @@ class BitmapProblem(rrt.Problem):
 	def collides(self, x):
 		return self.map.getpixel(x)[0:3] != (255,255,255)
 
+	def goal_reached(self, x):
+		return False
+
 if __name__ == '__main__':
 	# Problem
 	problem = BitmapProblem(Image.open("./slit_map.png"), (100, 200), (400,200), 20)
