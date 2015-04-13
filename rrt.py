@@ -45,34 +45,33 @@ class RRT(object):
         self.root = None # not currently used, but could be useful
         self.nodes = [] # list of nodes in tree
 
-    def build_rrt(self, x_init, x_goal, max_iter):
+    def build_rrt(self, x_init, max_iter):
         ''' Builds RRT, given start state, goal state, and max number of iterations.
 
             Input arguments:
             - x_init: start state
-            - x_goal: goal state
             - max_iter: maximum number of iterations
             
             Returns:
-            - True if goal state is reached.
-            - False if goal state is not reached before max number of iterations.
+            - State x such that goal_reached(x) is true.
+            - None if goal state is not reached before max number of iterations.
         '''
         self.root = Node(x_init)
         self.nodes.append(self.root)
 
-        if x_init == x_goal:
-            return True
+        if self.P.goal_reached(x_init):
+            return x_init
 
         counter = 0
 
         while counter < max_iter:
             x_rand = self.P.random_state()
             x_new = self.extend(x_rand)
-            if self.P.goal_reached(x_new):
-                return True
+            if x_new and self.P.goal_reached(x_new):
+                return x_new
             counter += 1
 
-        return False
+        return None
 
     def nearest_neighbor(self, x):
         ''' Returns node in tree with minimum distance to x, as defined by the P.metric function.

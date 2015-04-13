@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
 	# Solve
 	tree = rrt.RRT(problem)
-	tree.build_rrt(problem.x_init, problem.x_goal, 100)
+	tree.build_rrt(problem.x_init, 100)
 
 	# Visualize
 	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.map)

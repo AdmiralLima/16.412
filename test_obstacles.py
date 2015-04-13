@@ -42,7 +42,7 @@ class ObstacleProblem(rrt.Problem):
 		return (x2[0]-x1[0])**2+(x2[1]-x1[1])**2
 
 	def goal_reached(self, x):
-		return False
+		return (x[0]-self.x_goal[0])**2 + (x[1]-self.x_goal[1])**2 < 0.05
 
 	def generate_obstacles(self, n, radius):
 		i = 0
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
 	# Solve
 	tree = rrt.RRT(problem)
-	tree.build_rrt(problem.x_init, problem.x_goal, 200)
+	final_state = tree.build_rrt(problem.x_init, 200)
 
 	# Visualize
 	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.obstacles)
@@ -79,4 +79,6 @@ if __name__ == '__main__':
 		if n.parent:
 			visualizer.draw_edge(n.parent.data, n.data)
 	visualizer.draw_initial(tree.root.data)
+	if final_state:
+		visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
 	visualizer.done()

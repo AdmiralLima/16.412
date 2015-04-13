@@ -10,6 +10,9 @@ class BasicProblem(rrt.Problem):
 		self.x_min = 0.0; self.x_max = 1.0
 		self.y_min = 0.0; self.y_max = 1.0
 
+		self.x_init = (0.5, 0.5)
+		self.x_goal = (1.0, 1.0)
+
 	def random_state(self):
 		x = random.uniform(self.x_min, self.x_max)
 		y = random.uniform(self.y_min, self.y_max)
@@ -30,7 +33,7 @@ class BasicProblem(rrt.Problem):
 		return (x2[0]-x1[0])**2+(x2[1]-x1[1])**2
 
 	def goal_reached(self, x):
-		return False
+		return (x[0]-self.x_goal[0])**2 + (x[1]-self.x_goal[1])**2 < 0.05
 
 if __name__ == '__main__':
 	# Problem
@@ -38,7 +41,7 @@ if __name__ == '__main__':
 
 	# Solve
 	tree = rrt.RRT(problem)
-	tree.build_rrt((0.5,0.5), (1.0, 1.0), 100)
+	final_state = tree.build_rrt(problem.x_init, 100)
 
 	# Visualize
 	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, [])
@@ -46,6 +49,7 @@ if __name__ == '__main__':
 		if n.parent:
 			visualizer.draw_edge(n.parent.data, n.data)
 	visualizer.draw_initial(tree.root.data)
-	visualizer.draw_solution([x.data for x in tree.get_path(tree.nodes[-1].data)[0]])
+	if final_state:
+		visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
 	visualizer.done()
 
