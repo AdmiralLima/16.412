@@ -90,13 +90,11 @@ class RRT(object):
                 x_rand = x_goal
 
             # extend the tree in the direction of x_rand
-            x_near, x_new = self.extend(x_rand)
-
-            if visualize:
-                self.v.draw_edge(x_near, x_new)
+            x_new = self.extend(x_rand, visualize)
 
             if x_new and self.P.goal_reached(x_new):
                 print('Reached goal in %d iterations' % counter)
+                print('Final state: %s' % (x_new,))
                 if visualize:
                     self.v.draw_solution([x.data for x in self.get_path(x_new)[0]])
                     self.v.done()
@@ -121,12 +119,14 @@ class RRT(object):
                 nearest_node = node
         return nearest_node
 
-    def extend(self, x):
+    def extend(self, x, visualize):
         nearest_node = self.nearest_neighbor(x)
         (x_new, u_new) = self.P.new_state(nearest_node.data, x)
         if x_new:
             self.add_node(x_new, nearest_node, u_new)
-            return (nearest_node.data, x_new)
+            if visualize:
+                self.v.draw_edge(nearest_node.data, x_new)
+            return x_new
         return False
 
     def add_node(self, data, parent_node, edge):
