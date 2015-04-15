@@ -57,7 +57,7 @@ class BitmapProblem(rrt.Problem):
 
 if __name__ == '__main__':
 	# Problem
-	problem = BitmapProblem(Image.open("./slit_map.png"), (100, 200), (400,200), 20)
+	problem = BitmapProblem(Image.open("./maze_50x270_750x250.png"), (50,270), (750,250), 20)
 
 	# Solve
 	solver = rrt.RRT(problem)

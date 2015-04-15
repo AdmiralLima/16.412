@@ -26,22 +26,26 @@ class BitmapProblem(rrt.Problem):
 		y = random.randint(self.y_min, self.y_max)
 		return (x,y)
 
-	def new_state(self, x1, x2):
-		# get direction vector
+	def new_state(self, x1, x2, reverse=False):
+		# get desired step
+		u = (x2[0]-x1[0], x2[1]-x1[1])
+
 		n = math.sqrt((x2[0]-x1[0])**2+(x2[1]-x1[1])**2)
-		try:
-			u = ((x2[0]-x1[0])/n, (x2[1]-x1[1])/n)
-		except ZeroDivisionError:
-			u = (0,0)
-		# get new sate
-		x = (int(x1[0]+u[0]*self.step), int(x1[1]+u[1]*self.step))
+		
+		if n < self.step: # Required step is less than maximum
+			u = (u[0]*n, u[1]*n)
+			x = x2
+		else: # Required step is too large
+			u = (u[0]*self.step/n, u[1]*self.step/n)
+			x = (int(x1[0]+u[0]),int(x1[1]+u[1]))
 
-		# Assume that if current and new states are valid then 
-		# they can be reached without any collisions
-		if not self.valid_state(x) or self.collides(x1) or self.collides(x):
-			return (None, None)
+		if not self.valid_state(x):
+			return None, None
 
-		return (x, u)
+		if reverse:
+			u = (-u[0],-u[1])
+
+		return x, u
 
 	def metric(self, x1, x2):
 		return (x2[0]-x1[0])**2+(x2[1]-x1[1])**2
@@ -53,24 +57,25 @@ class BitmapProblem(rrt.Problem):
 		return (x[0]-self.x_goal[0])**2 + (x[1]-self.x_goal[1])**2 < 20**2
 
 	def valid_state(self, x):
-		return (self.x_min < x[0] < self.x_max) and (self.y_min < x[1] < self.y_max)
+		return (self.x_min < x[0] < self.x_max) and (self.y_min < x[1] < self.y_max) and not self.collides(x)
 
 if __name__ == '__main__':
 	# Problem
-	problem = BitmapProblem(Image.open("./slit_map.png"), (100, 200), (400,200), 20)
+	problem = BitmapProblem(Image.open("./maze_50x270_750x250.png"), (50,270), (750,250), 20)
 
 	# Solve
-	solver = rrt.RRT(problem)
-	final_state,tree = solver.build_rrt(problem.x_init, 500)
+	solver = rrt.BIRRT(problem)
+	final_state,tree1,tree2 = solver.build_rrt(problem.x_init, problem.x_goal, 10000)
 
 	# Visualize
 	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.map)
-	for n in tree.nodes:
-		if n.parent:
-			visualizer.draw_edge(n.parent.data, n.data)
-	visualizer.draw_initial(tree.root.data)
-	if final_state:
-		visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
-	else:
-		print "No solution found. Try increasing the number of iterations."
+	for tree in [tree1,tree2]:
+		for n in tree.nodes:
+			if n.parent:
+				visualizer.draw_edge(n.parent.data, n.data)
+		visualizer.draw_initial(tree.root.data)
+		if final_state:
+			visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
+		else:
+			print "No solution found. Try increasing the number of iterations."
 	visualizer.done()
