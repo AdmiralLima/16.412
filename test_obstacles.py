@@ -2,7 +2,8 @@ import rrt
 import random
 import math
 
-import vis
+from vis import Visualizer
+
 
 class ObstacleProblem(rrt.Problem):
 	def __init__(self):
@@ -65,6 +66,9 @@ class ObstacleProblem(rrt.Problem):
 				return True
 		return False
 
+	def setup_vis(self):
+		v = Visualizer(self.x_min, self.x_max, self.y_min, self.y_max, self.obstacles)
+
 if __name__ == '__main__':
 	# Problem
 	problem = ObstacleProblem()
@@ -74,7 +78,7 @@ if __name__ == '__main__':
 	final_state = tree.build_rrt(problem.x_init, 200)
 
 	# Visualize
-	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.obstacles)
+	visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.obstacles)
 	for n in tree.nodes:
 		if n.parent:
 			visualizer.draw_edge(n.parent.data, n.data)

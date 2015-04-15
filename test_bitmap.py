@@ -1,7 +1,7 @@
 import rrt
 import random
 import math
-import vis
+from vis import Visualizer
 
 from PIL import Image
 
@@ -52,16 +52,20 @@ class BitmapProblem(rrt.Problem):
 	def goal_reached(self, x):
 		return False
 
+	def setup_vis(self):
+		v = Visualizer(self.x_min, self.x_max, self.y_min, self.y_max, self.map)
+		return v
+
 if __name__ == '__main__':
 	# Problem
 	problem = BitmapProblem(Image.open("./slit_map.png"), (100, 200), (400,200), 20)
 
 	# Solve
 	tree = rrt.RRT(problem)
-	tree.build_rrt(problem.x_init, 100)
+	tree.build_rrt(problem.x_init, 1000)
 
 	# Visualize
-	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.map)
+	visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.map)
 	for n in tree.nodes:
 		if n.parent:
 			visualizer.draw_edge(n.parent.data, n.data)

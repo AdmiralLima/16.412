@@ -1,4 +1,6 @@
 from sys import maxint
+from random import uniform
+from vis import Visualizer
 
 class Problem(object):
     def __init__(self):
@@ -33,6 +35,10 @@ class Problem(object):
         '''
         raise NotImplementedError( "Should have implemented this" )
 
+    def setup_vis(self):
+        ''' Initializes and returns Visualizer with specific problem parameters.'''
+        raise NotImplementedError( "Should have implemented this" )
+
 # assumes Problem has methods:
 # - random_state() -> state (tuple)
 # - metric(state1, state2) -> distance (int or float)
@@ -45,17 +51,25 @@ class RRT(object):
         self.root = None # not currently used, but could be useful
         self.nodes = [] # list of nodes in tree
 
-    def build_rrt(self, x_init, max_iter):
-        ''' Builds RRT, given start state, goal state, and max number of iterations.
+    def build_rrt(self, x_init, x_goal, max_iter=100, goal_bias=0, visualize=False):
+        ''' Builds RRT, given start state, goal state, and other algorithm parameters.
 
             Input arguments:
             - x_init: start state
-            - max_iter: maximum number of iterations
+            - x_goal: goal state
+            - max_iter: maximum number of iterations. default=100
+            - goal_bias: probability of sampling x_goal. default=0
+            - vis_steps: visualize each step as new nodes are added
             
             Returns:
             - State x such that goal_reached(x) is true.
             - None if goal state is not reached before max number of iterations.
         '''
+
+        if visualize:                
+            self.v = self.P.setup_vis()
+            self.v.draw_initial(x_init)
+
         self.root = Node(x_init)
         self.nodes.append(self.root)
 
@@ -65,12 +79,33 @@ class RRT(object):
         counter = 0
 
         while counter < max_iter:
-            x_rand = self.P.random_state()
-            x_new = self.extend(x_rand)
-            if x_new and self.P.goal_reached(x_new):
-                return x_new
+
             counter += 1
 
+            # select a random state with probability = 1-goal_bias,
+            # or the goal state with probability = goal_bias
+            if uniform(0,1) >= goal_bias:
+                x_rand = self.P.random_state()
+            else:
+                x_rand = x_goal
+
+            # extend the tree in the direction of x_rand
+            x_near, x_new = self.extend(x_rand)
+
+            if visualize:
+                self.v.draw_edge(x_near, x_new)
+
+            if x_new and self.P.goal_reached(x_new):
+                print('Reached goal in %d iterations' % counter)
+                if visualize:
+                    self.v.draw_solution([x.data for x in self.get_path(x_new)[0]])
+                    self.v.done()
+                return x_new
+
+        # goal not reached
+        print('Reached max number of iterations (%d)' % max_iter)
+        if visualize:
+            self.v.done()
         return None
 
     def nearest_neighbor(self, x):
@@ -91,7 +126,7 @@ class RRT(object):
         (x_new, u_new) = self.P.new_state(nearest_node.data, x)
         if x_new:
             self.add_node(x_new, nearest_node, u_new)
-            return x_new
+            return (nearest_node.data, x_new)
         return False
 
     def add_node(self, data, parent_node, edge):

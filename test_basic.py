@@ -2,7 +2,7 @@ import rrt
 import random
 import math
 
-import vis
+from vis import Visualizer
 
 class BasicProblem(rrt.Problem):
 	def __init__(self):
@@ -35,21 +35,25 @@ class BasicProblem(rrt.Problem):
 	def goal_reached(self, x):
 		return (x[0]-self.x_goal[0])**2 + (x[1]-self.x_goal[1])**2 < 0.05
 
+	def setup_vis(self):
+		v = Visualizer(self.x_min, self.x_max, self.y_min, self.y_max, [])
+		return v
+
 if __name__ == '__main__':
 	# Problem
 	problem = BasicProblem()
 
 	# Solve
 	tree = rrt.RRT(problem)
-	final_state = tree.build_rrt(problem.x_init, 100)
+	final_state = tree.build_rrt(problem.x_init, problem.x_goal, 1000, 0.1, True)
 
 	# Visualize
-	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, [])
-	for n in tree.nodes:
-		if n.parent:
-			visualizer.draw_edge(n.parent.data, n.data)
-	visualizer.draw_initial(tree.root.data)
-	if final_state:
-		visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
-	visualizer.done()
+	# visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, [])
+	# for n in tree.nodes:
+	# 	if n.parent:
+	# 		visualizer.draw_edge(n.parent.data, n.data)
+	# visualizer.draw_initial(tree.root.data)
+	# if final_state:
+	# 	visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
+	# visualizer.done()
 
