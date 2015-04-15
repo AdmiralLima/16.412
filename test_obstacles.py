@@ -68,6 +68,7 @@ class ObstacleProblem(rrt.Problem):
 
 	def setup_vis(self):
 		v = Visualizer(self.x_min, self.x_max, self.y_min, self.y_max, self.obstacles)
+		return v
 
 if __name__ == '__main__':
 	# Problem
