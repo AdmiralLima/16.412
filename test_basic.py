@@ -57,16 +57,4 @@ if __name__ == '__main__':
 
 	# Solve
 	solver = rrt.RRT(problem)
-	final_state, tree = solver.build_rrt(problem.x_init, problem.x_goal, 500)
-
-	# Visualize
-	visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, [])
-	for n in tree.nodes:
-		if n.parent:
-			visualizer.draw_edge(n.parent.data, n.data)
-	visualizer.draw_initial(tree.root.data)
-	if final_state:
-		visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
-	else:
-		print "No solution found. Try increasing the number of iterations."
-	visualizer.done()
+	final_state, tree = solver.build_rrt(problem.x_init, problem.x_goal, 500, 0.1, True)

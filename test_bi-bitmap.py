@@ -1,9 +1,10 @@
 import rrt
 import random
 import math
-import vis
+from vis import Visualizer
 
 from PIL import Image
+
 
 class BitmapProblem(rrt.Problem):
 	def __init__(self, image, init, goal, step):
@@ -63,6 +64,10 @@ class BitmapProblem(rrt.Problem):
 	def valid_state(self, x):
 		return (self.x_min < x[0] < self.x_max) and (self.y_min < x[1] < self.y_max) and not self.collides(x)
 
+	def setup_vis(self):
+		return Visualizer(self.x_min, self.x_max, self.y_min, self.y_max, self.map)
+
+
 if __name__ == '__main__':
 	# Problem
 	problem = BitmapProblem(Image.open("./slit_map2.png"), (100, 200), (400,200), 10)
@@ -72,14 +77,14 @@ if __name__ == '__main__':
 	final_state,tree1,tree2 = solver.build_rrt(problem.x_init, problem.x_goal, 1000)
 
 	# Visualize
-	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.map)
-	for tree in [tree1,tree2]:
-		for n in tree.nodes:
-			if n.parent:
-				visualizer.draw_edge(n.parent.data, n.data)
-		visualizer.draw_initial(tree.root.data)
-		if final_state:
-			visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
-		else:
-			print "No solution found. Try increasing the number of iterations."
-	visualizer.done()
+	# visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.map)
+	# for tree in [tree1,tree2]:
+	# 	for n in tree.nodes:
+	# 		if n.parent:
+	# 			visualizer.draw_edge(n.parent.data, n.data)
+	# 	visualizer.draw_initial(tree.root.data)
+	# 	if final_state:
+	# 		visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
+	# 	else:
+	# 		print "No solution found. Try increasing the number of iterations."
+	# visualizer.done()

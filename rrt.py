@@ -51,7 +51,7 @@ class RRT(object):
     def __init__(self, problem):
         self.P = problem
 
-    def build_rrt(self, x_init, x_goal, max_iter=100, goal_bias=0, visualize=False):
+    def build_rrt(self, x_init, x_goal, max_iter=100, goal_bias=0, show_vis=True):
         ''' Builds RRT, given start state, goal state, and other algorithm parameters.
 
             Input arguments:
@@ -65,10 +65,6 @@ class RRT(object):
             - State x such that goal_reached(x) is true.
             - None if goal state is not reached before max number of iterations.
         '''
-
-        if visualize:                
-            self.v = self.P.setup_vis()
-            self.v.draw_initial(x_init)
 
         tree = Tree(x_init)
 
@@ -88,29 +84,30 @@ class RRT(object):
                 x_rand = x_goal
 
             # extend the tree in the direction of x_rand
-            x_new = self.extend(tree, x_rand, visualize)
+            x_new = self.extend(tree, x_rand)
 
             if x_new and self.P.goal_reached(x_new):
                 print('Reached goal in %d iterations' % counter)
                 print('Final state: %s' % (x_new,))
-                if visualize:
-                    self.v.draw_solution([x.data for x in tree.get_path(x_new)[0]])
-                    self.v.done()
+                
+                if show_vis:
+                    self.visualize(tree, x_new)
+
                 return x_new, tree
 
         # goal not reached
         print('Reached max number of iterations (%d)' % max_iter)
-        if visualize:
-            self.v.done()
+
+        if show_vis:
+            self.visualize(tree)
+
         return None, tree
 
-    def extend(self, tree, x, visualize):
+    def extend(self, tree, x):
         nearest_node = self.nearest_neighbor(tree, x)
         (x_new, u_new) = self.P.new_state(nearest_node.data, x)
         if x_new:
             tree.add_node(x_new, nearest_node, u_new)
-            if visualize:
-                self.v.draw_edge(nearest_node.data, x_new)
             return x_new
         return None
 
@@ -126,13 +123,23 @@ class RRT(object):
                 nearest_node = node
         return nearest_node
 
+    def visualize(self, tree, final_state=None):
+        v = self.P.setup_vis()
+        for n in tree.nodes:
+            if n.parent:
+                v.draw_edge(n.parent.data, n.data)
+        v.draw_initial(tree.root.data)
+        if final_state:
+            v.draw_solution([x.data for x in tree.get_path(final_state)[0]])
+        v.done()
+
 
 class BIRRT(object):
 
     def __init__(self, problem):
         self.P = problem
 
-    def build_rrt(self, x_init, x_goal, max_iter):
+    def build_rrt(self, x_init, x_goal, max_iter, show_vis=True):
         ''' Builds RRT, given start state, goal state, and max number of iterations.
 
             Input arguments:
@@ -156,11 +163,17 @@ class BIRRT(object):
             if x_new1 is not None:
                 x_new2 = self.extend(t2, x_new1, not reverse)
                 if x_new1 == x_new2:
+                    if show_vis:
+                        self.visualize(t1, t2, x_new1)
                     return x_new1, t_init, t_goal
 
             t1,t2 = t2,t1
             reverse = not reverse
             counter += 1
+
+        # max iterations reached before trees connected
+        if show_vis:
+            self.visualize(t1, t2)
 
         return None, t_init, t_goal
 
@@ -187,6 +200,19 @@ class BIRRT(object):
                 min_dist = dist
                 nearest_node = node
         return nearest_node
+
+    def visualize(self, tree1, tree2, final_state=None):
+        v = self.P.setup_vis()
+        for tree in [tree1,tree2]:
+            for n in tree.nodes:
+                if n.parent:
+                    v.draw_edge(n.parent.data, n.data)
+            v.draw_initial(tree.root.data)
+            if final_state:
+                v.draw_solution([x.data for x in tree.get_path(final_state)[0]])
+            else:
+                print "No solution found. Try increasing the number of iterations."
+        v.done()
     
 
 class Node(object):
