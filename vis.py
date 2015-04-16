@@ -37,6 +37,9 @@ class Visualizer:
 	def draw_initial(self, x):
 		plot.plot((x[0]), (x[1]), 'og')
 
+	def draw_goal(self, x):
+		plot.plot((x[0]), (x[1]), 'og')
+
 	def draw_edge(self, x1, x2):
 		plot.plot((x1[0],x2[0]), (x1[1],x2[1]), '.-k')
 

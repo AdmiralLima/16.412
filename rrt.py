@@ -91,7 +91,7 @@ class RRT(object):
                 print('Final state: %s' % (x_new,))
                 
                 if show_vis:
-                    self.visualize(tree, x_new)
+                    self.visualize(tree, x_new, x_goal=x_goal)
 
                 return x_new, tree
 
@@ -99,7 +99,7 @@ class RRT(object):
         print('Reached max number of iterations (%d)' % max_iter)
 
         if show_vis:
-            self.visualize(tree)
+            self.visualize(tree, x_goal=x_goal)
 
         return None, tree
 
@@ -123,12 +123,14 @@ class RRT(object):
                 nearest_node = node
         return nearest_node
 
-    def visualize(self, tree, final_state=None):
+    def visualize(self, tree, final_state=None, x_goal=None):
         v = self.P.setup_vis()
         for n in tree.nodes:
             if n.parent:
                 v.draw_edge(n.parent.data, n.data)
         v.draw_initial(tree.root.data)
+        if x_goal:
+            v.draw_goal(x_goal)
         if final_state:
             v.draw_solution([x.data for x in tree.get_path(final_state)[0]])
         v.done()
