@@ -9,9 +9,10 @@ class Problem(object):
     def random_state(self):
         raise NotImplementedError( "Should have implemented this" )
 
-    def new_state(self, x1, x2):
-        ''' Selects an input that would move sate x1 towards state x2 and returns 
-            the new state together with the input.
+    def new_state(self, x1, x2, reverse=False):
+        ''' Selects an input that would move state x1 towards state x2 and returns 
+            the new state together with the input. The new state should be a valid
+            state (in the region of allowed states).
 
             Input arguments:
             - x1: current state
@@ -44,12 +45,11 @@ class Problem(object):
 # - metric(state1, state2) -> distance (int or float)
 # - new_state(state1, state2, time_step) -> state, input
 
+
 class RRT(object):
 
     def __init__(self, problem):
         self.P = problem
-        self.root = None # not currently used, but could be useful
-        self.nodes = [] # list of nodes in tree
 
     def build_rrt(self, x_init, x_goal, max_iter=100, goal_bias=0, visualize=False):
         ''' Builds RRT, given start state, goal state, and other algorithm parameters.
@@ -70,14 +70,12 @@ class RRT(object):
             self.v = self.P.setup_vis()
             self.v.draw_initial(x_init)
 
-        self.root = Node(x_init)
-        self.nodes.append(self.root)
+        tree = Tree(x_init)
 
         if self.P.goal_reached(x_init):
-            return x_init
+            return x_init, tree
 
         counter = 0
-
         while counter < max_iter:
 
             counter += 1
@@ -90,44 +88,124 @@ class RRT(object):
                 x_rand = x_goal
 
             # extend the tree in the direction of x_rand
-            x_new = self.extend(x_rand, visualize)
+            x_new = self.extend(tree, x_rand, visualize)
 
             if x_new and self.P.goal_reached(x_new):
                 print('Reached goal in %d iterations' % counter)
                 print('Final state: %s' % (x_new,))
                 if visualize:
-                    self.v.draw_solution([x.data for x in self.get_path(x_new)[0]])
+                    self.v.draw_solution([x.data for x in tree.get_path(x_new)[0]])
                     self.v.done()
-                return x_new
+                return x_new, tree
 
         # goal not reached
         print('Reached max number of iterations (%d)' % max_iter)
         if visualize:
             self.v.done()
+        return None, tree
+
+    def extend(self, tree, x, visualize):
+        nearest_node = self.nearest_neighbor(tree, x)
+        (x_new, u_new) = self.P.new_state(nearest_node.data, x)
+        if x_new:
+            tree.add_node(x_new, nearest_node, u_new)
+            if visualize:
+                self.v.draw_edge(nearest_node.data, x_new)
+            return x_new
         return None
 
-    def nearest_neighbor(self, x):
-        ''' Returns node in tree with minimum distance to x, as defined by the P.metric function.
-        '''
+    def nearest_neighbor(self, tree, x):
+        ''' Returns node in tree with minimum distance to x, as defined by the P.metric function. '''
         
         min_dist = maxint
         nearest_node = None
-        for node in self.nodes:
+        for node in tree.nodes:
             dist = self.P.metric(node.data, x)
             if dist < min_dist:
                 min_dist = dist
                 nearest_node = node
         return nearest_node
 
-    def extend(self, x, visualize):
-        nearest_node = self.nearest_neighbor(x)
-        (x_new, u_new) = self.P.new_state(nearest_node.data, x)
+
+class BIRRT(object):
+
+    def __init__(self, problem):
+        self.P = problem
+
+    def build_rrt(self, x_init, x_goal, max_iter):
+        ''' Builds RRT, given start state, goal state, and max number of iterations.
+
+            Input arguments:
+            - x_init: start state
+            - max_iter: maximum number of iterations
+            
+            Returns:
+            - State x such that goal_reached(x) is true.
+            - None if goal state is not reached before max number of iterations.
+        '''
+        t_init = Tree(x_init); t_goal = Tree(x_goal)
+
+        #if self.P.goal_reached(x_init):
+        #    return x_init, tree
+
+        counter = 0; t1 = t_init; t2 = t_goal; reverse=False
+        while counter < max_iter:
+            x_rand = self.P.random_state()
+            
+            x_new1 = self.extend(t1, x_rand, reverse)
+            if x_new1 is not None:
+                x_new2 = self.extend(t2, x_new1, not reverse)
+                if x_new1 == x_new2:
+                    return x_new1, t_init, t_goal
+
+            t1,t2 = t2,t1
+            reverse = not reverse
+            counter += 1
+
+        return None, t_init, t_goal
+
+
+    def extend(self, tree, x, reverse=False):
+        nearest_node = self.nearest_neighbor(tree, x)
+
+        (x_new, u_new) = self.P.new_state(nearest_node.data, x, reverse=reverse)
+
         if x_new:
-            self.add_node(x_new, nearest_node, u_new)
-            if visualize:
-                self.v.draw_edge(nearest_node.data, x_new)
+            tree.add_node(x_new, nearest_node, u_new)
             return x_new
-        return False
+
+        return None
+
+    def nearest_neighbor(self, tree, x):
+        ''' Returns node in tree with minimum distance to x, as defined by the P.metric function. '''
+        
+        min_dist = maxint
+        nearest_node = None
+        for node in tree.nodes:
+            dist = self.P.metric(node.data, x)
+            if dist < min_dist:
+                min_dist = dist
+                nearest_node = node
+        return nearest_node
+    
+
+class Node(object):
+    
+    def __init__(self, data, parent=None, incoming_edge=None):
+        ''' Input arguments:
+        - data: probably represented as a tuple
+        - parent: Node object
+        - incoming_edge: input that transitions from parent state to this state
+        '''
+        self.data = data
+        self.parent = parent
+        self.incoming_edge = incoming_edge
+        self.children = [] # this isn't used for anything right now
+
+class Tree(object):
+    def __init__(self, root):
+        self.root = Node(root) # not currently used, but could be useful
+        self.nodes = [self.root] # list of nodes in tree
 
     def add_node(self, data, parent_node, edge):
         ''' Adds a node to the tree.
@@ -175,18 +253,3 @@ class RRT(object):
             inputs.append(node.incoming_edge)
             node = node.parent
         return path, inputs
-    
-
-class Node(object):
-    
-    def __init__(self, data, parent=None, incoming_edge=None):
-        ''' Input arguments:
-        - data: probably represented as a tuple
-        - parent: Node object
-        - incoming_edge: input that transitions from parent state to this state
-        '''
-        self.data = data
-        self.parent = parent
-        self.incoming_edge = incoming_edge
-        self.children = [] # this isn't used for anything right now
-

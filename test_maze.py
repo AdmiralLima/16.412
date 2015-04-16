@@ -1,7 +1,7 @@
 import rrt
 import random
 import math
-from vis import Visualizer
+import vis
 
 from PIL import Image
 
@@ -55,20 +55,16 @@ class BitmapProblem(rrt.Problem):
 	def valid_state(self, x):
 		return (self.x_min < x[0] < self.x_max) and (self.y_min < x[1] < self.y_max)
 
-	def setup_vis(self):
-		v = Visualizer(self.x_min, self.x_max, self.y_min, self.y_max, self.map)
-		return v
-
 if __name__ == '__main__':
 	# Problem
-	problem = BitmapProblem(Image.open("./slit_map.png"), (100, 200), (400,200), 20)
+	problem = BitmapProblem(Image.open("./maze_50x270_750x250.png"), (50,270), (750,250), 20)
 
 	# Solve
 	solver = rrt.RRT(problem)
 	final_state,tree = solver.build_rrt(problem.x_init, 500)
 
 	# Visualize
-	visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.map)
+	visualizer = vis.Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.map)
 	for n in tree.nodes:
 		if n.parent:
 			visualizer.draw_edge(n.parent.data, n.data)

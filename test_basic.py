@@ -18,15 +18,23 @@ class BasicProblem(rrt.Problem):
 		y = random.uniform(self.y_min, self.y_max)
 		return (x,y)
 
-	def new_state(self, x1, x2):
+	def new_state(self, x1, x2, reverse=False):
 		# get direction vector
 		n = math.sqrt((x2[0]-x1[0])**2+(x2[1]-x1[1])**2)
 		try:
 			u = ((x2[0]-x1[0])/n, (x2[1]-x1[1])/n)
 		except ZeroDivisionError:
 			u = (0.0,0.0)
+
 		# get new sate
-		x = (x1[0]+u[0]*self.dt, x1[1]+u[1]*self.dt)
+		if reverse:
+			x = (x2[0]-u[0]*self.dt, x2[1]-u[1]*self.dt)
+		else:
+			x = (x1[0]+u[0]*self.dt, x1[1]+u[1]*self.dt)
+
+		if not self.valid_state(x):
+			return (None, None)
+
 		return (x, u)
 
 	def metric(self, x1, x2):
@@ -39,21 +47,26 @@ class BasicProblem(rrt.Problem):
 		v = Visualizer(self.x_min, self.x_max, self.y_min, self.y_max, [])
 		return v
 
+	def valid_state(self, x):
+		return (self.x_min <= x[0] <= self.x_max) and (self.y_min <= x[1] <= self.y_max)
+
+
 if __name__ == '__main__':
 	# Problem
 	problem = BasicProblem()
 
 	# Solve
-	tree = rrt.RRT(problem)
-	final_state = tree.build_rrt(problem.x_init, problem.x_goal, 1000, 0.1, True)
+	solver = rrt.RRT(problem)
+	final_state, tree = solver.build_rrt(problem.x_init, problem.x_goal, 500)
 
 	# Visualize
-	# visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, [])
-	# for n in tree.nodes:
-	# 	if n.parent:
-	# 		visualizer.draw_edge(n.parent.data, n.data)
-	# visualizer.draw_initial(tree.root.data)
-	# if final_state:
-	# 	visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
-	# visualizer.done()
-
+	visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, [])
+	for n in tree.nodes:
+		if n.parent:
+			visualizer.draw_edge(n.parent.data, n.data)
+	visualizer.draw_initial(tree.root.data)
+	if final_state:
+		visualizer.draw_solution([x.data for x in tree.get_path(final_state)[0]])
+	else:
+		print "No solution found. Try increasing the number of iterations."
+	visualizer.done()

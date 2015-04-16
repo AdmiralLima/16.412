@@ -34,7 +34,7 @@ class ObstacleProblem(rrt.Problem):
 
 		# Assume that if current and new states are valid then 
 		# they can be reached without any collisions
-		if self.collides(x1) or self.collides(x):
+		if not self.valid_state(x) or self.collides(x1) or self.collides(x):
 			return (None, None)
 
 		return (x, u)
@@ -44,6 +44,9 @@ class ObstacleProblem(rrt.Problem):
 
 	def goal_reached(self, x):
 		return (x[0]-self.x_goal[0])**2 + (x[1]-self.x_goal[1])**2 < 0.05
+
+	def valid_state(self, x):
+		return (self.x_min <= x[0] <= self.x_max) and (self.y_min <= x[1] <= self.y_max)
 
 	def generate_obstacles(self, n, radius):
 		i = 0
@@ -75,8 +78,8 @@ if __name__ == '__main__':
 	problem = ObstacleProblem()
 
 	# Solve
-	tree = rrt.RRT(problem)
-	final_state = tree.build_rrt(problem.x_init, 200)
+	solver = rrt.RRT(problem)
+	final_state,tree = solver.build_rrt(problem.x_init, 200)
 
 	# Visualize
 	visualizer = Visualizer(problem.x_min, problem.x_max, problem.y_min, problem.y_max, problem.obstacles)
