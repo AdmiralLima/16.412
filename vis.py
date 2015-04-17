@@ -41,7 +41,7 @@ class Visualizer:
 		plot.plot((x[0]), (x[1]), 'og')
 
 	def draw_edge(self, x1, x2, color='k'):
-		plot.arrow(x1[0], x1[1], x2[0]-x1[0], x2[1]-x1[1], length_includes_head=True, head_width=0.01, color=color)
+		plot.arrow(x1[0], x1[1], x2[0]-x1[0], x2[1]-x1[1], length_includes_head=True, head_width=0.008*(self.xmax-self.xmin), color=color)
 		plot.plot((x1[0],x2[0]), (x1[1],x2[1]), '.-'+color)
 
 	def draw_solution(self, path):
