@@ -205,10 +205,14 @@ class BIRRT(object):
 
     def visualize(self, tree1, tree2, final_state=None):
         v = self.P.setup_vis()
-        for tree in [tree1,tree2]:
+        trees = [tree1, tree2]
+        colors = ['k', 'b']
+        for i in range(2):
+            tree = trees[i]
+            color = colors[i]
             for n in tree.nodes:
                 if n.parent:
-                    v.draw_edge(n.parent.data, n.data)
+                    v.draw_edge(n.parent.data, n.data, color)
             v.draw_initial(tree.root.data)
             if final_state:
                 v.draw_solution([x.data for x in tree.get_path(final_state)[0]])
