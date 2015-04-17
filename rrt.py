@@ -206,7 +206,6 @@ class Node(object):
         self.data = data
         self.parent = parent
         self.incoming_edge = incoming_edge
-        self.children = [] # this isn't used for anything right now
 
 
 class Tree(object):
@@ -224,9 +223,10 @@ class Tree(object):
         - parent_node: Node object that is parent of new node.
         - edge: input action that transitions from parent state to new state.
         '''
+        assert isinstance(parent_node, Node), 'parent_node should be a Node instance'
+
         new_node = Node(data, parent_node, edge)
         self.nodes.append(new_node)
-        parent_node.children.append(new_node)
 
     def get_node(self, state):
         ''' Given a state, returns the corresponding node in the tree.
