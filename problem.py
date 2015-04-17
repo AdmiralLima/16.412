@@ -127,12 +127,9 @@ class BitmapProblem(Basic2DProblem):
         super(BitmapProblem, self).__init__(0, image.size[0]-1, 0, image.size[1]-1, init, goal, max_step, goal_tolerance)
 
     def random_state(self):
-        ''' Return a random valid state (within bounds and not within an obstacle). ''' 
-        valid = False
-        while not valid:
-            x = random.randint(self.x_min, self.x_max)
-            y = random.randint(self.y_min, self.y_max)
-            valid = (not self.collides((x, y)))
+        ''' Return a random state within 2-D bounds (i.e. pixel in image). ''' 
+        x = random.randint(self.x_min, self.x_max)
+        y = random.randint(self.y_min, self.y_max)
         return (x, y)
 
     def new_state(self, x1, x2, reverse=False):
@@ -166,20 +163,12 @@ class ObstacleProblem(Basic2DProblem):
         else:
             self.obstacles = self.generate_obstacles(10, 0.1)
 
-    def random_state(self):
-        ''' Return a random valid state (within bounds and not within an obstacle). ''' 
-        valid = False
-        while not valid:
-            (x, y) = super(ObstacleProblem, self).random_state()
-            valid = (not self.collides((x, y)))
-        return (x, y)
-
     def generate_obstacles(self, n, max_radius):
         ''' Returns a list of n randomly generated circles represented as ((x_center, y_center), radius). '''
         obstacles = []
         i = 0
         while i < n:
-            (x,y) = super(ObstacleProblem, self).random_state()
+            (x, y) = self.random_state()
             r = max_radius*(random.random()/2 + 0.5)
             circle = ((x,y),r)
             if not self.inside_circle(self.x_init, circle):
