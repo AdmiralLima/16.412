@@ -50,6 +50,10 @@ class Basic2DProblem(Problem):
     ''' Problem with 2-D state space and no obstacles. '''
 
     def __init__(self, x_min=0.0, x_max=1.0, y_min=0.0, y_max=1.0, init=(0.5,0.5), goal=(1.0,1.0), max_step=0.05, goal_tolerance=0.01):
+
+        assert x_min <= init[0] <= x_max and y_min <= init[1] <= y_max, 'initial state %s out of bounds (x: [%d,%d], y: [%d,%d])' % ((init,), x_min, x_max, y_min, y_max)
+        assert x_min <= goal[0] <= x_max and y_min <= goal[1] <= y_max, 'goal state %s out of bounds (x: [%d,%d], y: [%d,%d])' % ((goal,), x_min, x_max, y_min, y_max)
+
         self.max_step = max_step
         self.x_min = x_min; self.x_max = x_max
         self.y_min = y_min; self.y_max = y_max
@@ -114,15 +118,18 @@ class Basic2DProblem(Problem):
 
 
 class BitmapProblem(Basic2DProblem):
-    ''' Problem with 2-D state space, using a binary bitmap where black denotes obstacle regions and white denotes free regions. '''
+    ''' Problem with 2-D state space, using a black-and-white bitmap where black denotes obstacle regions and white denotes free regions. '''
 
     def __init__(self, image, init, goal, max_step, goal_tolerance=20):
         ''' Takes a PIL.Image.Image object as a map.
 
             White pixels are interpreted as allowable states.
         '''
+        assert isinstance(image, Image.Image), "bitmap must be a PIL.Image.Image"
+        self.map = image.convert('1')
 
-        self.map = image
+        assert self.map.getpixel(init) != 0, "initial state is in an obstacle"
+        assert self.map.getpixel(goal) != 0, "goal state is in an obstacle"
 
         super(BitmapProblem, self).__init__(0, image.size[0]-1, 0, image.size[1]-1, init, goal, max_step, goal_tolerance)
 
@@ -135,16 +142,9 @@ class BitmapProblem(Basic2DProblem):
     def new_state(self, x1, x2, reverse=False):
         return super(BitmapProblem, self).new_state(x1, x2, reverse)
 
-    def collides(self, x):
-        ''' Determines whether state x is in an obstacle region, indicated as black in bitmap. '''
-        p = self.map.getpixel(x)
-        if len(p) == 4:
-            return p[0:3] != (255,255,255) and p[3] != 0
-        else:
-            return p[0:3] != (255,255,255)
-
     def valid_state(self, x):
-        return (super(BitmapProblem, self).valid_state(x) and not self.collides(x))
+        ''' Determine whether state x is within bounds and not in an obstacle region. '''
+        return (super(BitmapProblem, self).valid_state(x) and self.map.getpixel(x) != 0)
 
     def setup_vis(self):
         return Visualizer(self.x_min, self.x_max, self.y_min, self.y_max, self.map)
