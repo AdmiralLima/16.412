@@ -53,17 +53,17 @@ class RRTBase(object):
                 nearest_node = node
         return nearest_node
 
-    def visualize(self, tree, final_state=None, x_goal=None, color='k', show=True):
+    def visualize(self, tree, final_state=None, x_goal=None, color='r', show=True):
         ''' Creates and displays visualization for a (solved) RRT. '''
         v = self.P.setup_vis()
         for n in tree.nodes:
             if n.parent:
-                v.draw_edge(n.parent.data, n.data, color)
+                v.draw_edge(n.parent.data, n.data, color=color)
+        if final_state:
+            v.draw_solution([x.data for x in tree.get_path(final_state)[0]], color=color)
         v.draw_initial(tree.root.data)
         if x_goal:
             v.draw_goal(x_goal)
-        if final_state:
-            v.draw_solution([x.data for x in tree.get_path(final_state)[0]])
         if show:
             v.done()
 
