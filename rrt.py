@@ -62,7 +62,7 @@ class RRTBase(object):
             if n.parent:
                 v.draw_edge(n.parent.data, n.data, color=color)
         if final_state:
-            v.draw_solution([x.data for x in tree.get_path(final_state)[0]], color=color)
+            v.draw_solution(tree.get_path(final_state)[0], color=color)
         v.draw_initial(tree.root.data)
         if x_goal:
             v.draw_goal(x_goal)
@@ -258,7 +258,10 @@ class Tree(object):
         path = []
         inputs = []
         while node: # this should iterate until it reaches the root node
-            path.append(node)
+            path.append(node.data)
             inputs.append(node.incoming_edge)
             node = node.parent
+        path.reverse()
+        inputs = inputs[:-1] # last input is None for root
+        inputs.reverse()
         return path, inputs
