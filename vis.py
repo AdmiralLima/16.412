@@ -44,9 +44,9 @@ class Visualizer:
 		# plot.arrow(x1[0], x1[1], x2[0]-x1[0], x2[1]-x1[1], length_includes_head=True, head_width=0.008*(self.xmax-self.xmin), color=color)
 		plot.plot((x1[0],x2[0]), (x1[1],x2[1]), '.-'+color)
 
-	def draw_solution(self, path):
+	def draw_solution(self, path, color='r'):
 		for i in xrange(0, len(path)-1):
-			plot.plot((path[i][0],path[i+1][0]), (path[i][1],path[i+1][1]), '.-r')
+			plot.plot((path[i][0],path[i+1][0]), (path[i][1],path[i+1][1]), 'o-'+color, linewidth=3.0)
 
 	def done(self, block=True):
 		plot.show(block=block)
