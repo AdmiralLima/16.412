@@ -179,7 +179,7 @@ class ObstacleProblem(Basic2DProblem):
         obstacles = []
         i = 0
         while i < n:
-            (x,y) = self.random_state()
+            (x,y) = super(ObstacleProblem, self).random_state()
             r = max_radius*(random.random()/2 + 0.5)
             circle = ((x,y),r)
             if not self.inside_circle(self.x_init, circle):
