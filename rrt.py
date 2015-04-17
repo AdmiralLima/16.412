@@ -44,12 +44,56 @@ class Problem(object):
 # - random_state() -> state (tuple)
 # - metric(state1, state2) -> distance (int or float)
 # - new_state(state1, state2, time_step) -> state, input
+# - goal_reached(state) -> boolean
+# - setup_vis() -> Visualizer
 
 
-class RRT(object):
+class RRTBase(object):
 
     def __init__(self, problem):
         self.P = problem
+
+    def build_rrt(self, x_init, x_goal, max_iter, goal_bias, show_vis):
+        raise NotImplementedError("Should have implemented this")
+
+    def extend(self, tree, x, reverse=False):
+        nearest_node = self.nearest_neighbor(tree, x)
+
+        (x_new, u_new) = self.P.new_state(nearest_node.data, x, reverse=reverse)
+
+        if x_new:
+            tree.add_node(x_new, nearest_node, u_new)
+            return x_new
+
+        return None
+
+    def nearest_neighbor(self, tree, x):
+        ''' Returns node in tree with minimum distance to x, as defined by the P.metric function. '''
+        
+        min_dist = maxint
+        nearest_node = None
+        for node in tree.nodes:
+            dist = self.P.metric(node.data, x)
+            if dist < min_dist:
+                min_dist = dist
+                nearest_node = node
+        return nearest_node
+
+    def visualize(self, tree, final_state=None, x_goal=None, color='k', show=True):
+        v = self.P.setup_vis()
+        for n in tree.nodes:
+            if n.parent:
+                v.draw_edge(n.parent.data, n.data, color)
+        v.draw_initial(tree.root.data)
+        if x_goal:
+            v.draw_goal(x_goal)
+        if final_state:
+            v.draw_solution([x.data for x in tree.get_path(final_state)[0]])
+        if show:
+            v.done()
+
+
+class RRT(RRTBase):
 
     def build_rrt(self, x_init, x_goal, max_iter=100, goal_bias=0, show_vis=True):
         ''' Builds RRT, given start state, goal state, and other algorithm parameters.
@@ -103,43 +147,8 @@ class RRT(object):
 
         return None, tree
 
-    def extend(self, tree, x):
-        nearest_node = self.nearest_neighbor(tree, x)
-        (x_new, u_new) = self.P.new_state(nearest_node.data, x)
-        if x_new:
-            tree.add_node(x_new, nearest_node, u_new)
-            return x_new
-        return None
 
-    def nearest_neighbor(self, tree, x):
-        ''' Returns node in tree with minimum distance to x, as defined by the P.metric function. '''
-        
-        min_dist = maxint
-        nearest_node = None
-        for node in tree.nodes:
-            dist = self.P.metric(node.data, x)
-            if dist < min_dist:
-                min_dist = dist
-                nearest_node = node
-        return nearest_node
-
-    def visualize(self, tree, final_state=None, x_goal=None):
-        v = self.P.setup_vis()
-        for n in tree.nodes:
-            if n.parent:
-                v.draw_edge(n.parent.data, n.data)
-        v.draw_initial(tree.root.data)
-        if x_goal:
-            v.draw_goal(x_goal)
-        if final_state:
-            v.draw_solution([x.data for x in tree.get_path(final_state)[0]])
-        v.done()
-
-
-class BIRRT(object):
-
-    def __init__(self, problem):
-        self.P = problem
+class BIRRT(RRTBase):
 
     def build_rrt(self, x_init, x_goal, max_iter, show_vis=True):
         ''' Builds RRT, given start state, goal state, and max number of iterations.
@@ -153,9 +162,6 @@ class BIRRT(object):
             - None if goal state is not reached before max number of iterations.
         '''
         t_init = Tree(x_init); t_goal = Tree(x_goal)
-
-        #if self.P.goal_reached(x_init):
-        #    return x_init, tree
 
         counter = 0; t1 = t_init; t2 = t_goal; reverse=False
         while counter < max_iter:
@@ -179,46 +185,9 @@ class BIRRT(object):
 
         return None, t_init, t_goal
 
-
-    def extend(self, tree, x, reverse=False):
-        nearest_node = self.nearest_neighbor(tree, x)
-
-        (x_new, u_new) = self.P.new_state(nearest_node.data, x, reverse=reverse)
-
-        if x_new:
-            tree.add_node(x_new, nearest_node, u_new)
-            return x_new
-
-        return None
-
-    def nearest_neighbor(self, tree, x):
-        ''' Returns node in tree with minimum distance to x, as defined by the P.metric function. '''
-        
-        min_dist = maxint
-        nearest_node = None
-        for node in tree.nodes:
-            dist = self.P.metric(node.data, x)
-            if dist < min_dist:
-                min_dist = dist
-                nearest_node = node
-        return nearest_node
-
     def visualize(self, tree1, tree2, final_state=None):
-        v = self.P.setup_vis()
-        trees = [tree1, tree2]
-        colors = ['k', 'b']
-        for i in range(2):
-            tree = trees[i]
-            color = colors[i]
-            for n in tree.nodes:
-                if n.parent:
-                    v.draw_edge(n.parent.data, n.data, color)
-            v.draw_initial(tree.root.data)
-            if final_state:
-                v.draw_solution([x.data for x in tree.get_path(final_state)[0]])
-            else:
-                print "No solution found. Try increasing the number of iterations."
-        v.done()
+        super(BIRRT, self).visualize(tree1, final_state, show=False)
+        super(BIRRT, self).visualize(tree2, final_state, color='b')
     
 
 class Node(object):
@@ -233,6 +202,7 @@ class Node(object):
         self.parent = parent
         self.incoming_edge = incoming_edge
         self.children = [] # this isn't used for anything right now
+
 
 class Tree(object):
     def __init__(self, root):

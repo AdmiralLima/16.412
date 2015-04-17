@@ -22,7 +22,7 @@ class ObstacleProblem(rrt.Problem):
 		y = random.uniform(self.y_min, self.y_max)
 		return (x,y)
 
-	def new_state(self, x1, x2):
+	def new_state(self, x1, x2, reverse=False):
 		# get direction vector
 		n = math.sqrt((x2[0]-x1[0])**2+(x2[1]-x1[1])**2)
 		try:
