@@ -5,10 +5,13 @@ from vis import Visualizer
 from PIL import Image
 
 class Problem(object):
+    ''' Interface for Problem classes. '''
+
     def __init__(self):
         raise NotImplementedError( "Should have implemented this" )
 
     def random_state(self):
+        ''' Returns a random state within the allowable state space. '''
         raise NotImplementedError( "Should have implemented this" )
 
     def new_state(self, x1, x2, reverse=False):
@@ -78,6 +81,8 @@ class Basic2DProblem(Problem):
             the maximum step size from x1.
             - if reverse=False, u is the input that transitions from x1 to x.
             - if reverse=True, u is the input that transitions from x to x1.
+
+            If the state found is not valid, returns (None, None).
         '''
 
         # get desired step
@@ -109,6 +114,8 @@ class Basic2DProblem(Problem):
 
 
 class BitmapProblem(Basic2DProblem):
+    ''' Problem with 2-D state space, using a binary bitmap where black denotes obstacle regions and white denotes free regions. '''
+
     def __init__(self, image, init, goal, max_step, goal_tolerance=20):
         ''' Takes a PIL.Image.Image object as a map.
 
@@ -120,8 +127,12 @@ class BitmapProblem(Basic2DProblem):
         super(BitmapProblem, self).__init__(0, image.size[0]-1, 0, image.size[1]-1, init, goal, max_step, goal_tolerance)
 
     def random_state(self):
-        x = random.randint(self.x_min, self.x_max)
-        y = random.randint(self.y_min, self.y_max)
+        ''' Return a random valid state (within bounds and not within an obstacle). ''' 
+        valid = False
+        while not valid:
+            x = random.randint(self.x_min, self.x_max)
+            y = random.randint(self.y_min, self.y_max)
+            valid = (not self.collides((x, y)))
         return (x, y)
 
     def new_state(self, x1, x2, reverse=False):
@@ -136,8 +147,6 @@ class BitmapProblem(Basic2DProblem):
             return p[0:3] != (255,255,255)
 
     def valid_state(self, x):
-        if not super(BitmapProblem, self).valid_state(x):
-            print(x)
         return (super(BitmapProblem, self).valid_state(x) and not self.collides(x))
 
     def setup_vis(self):
@@ -145,8 +154,11 @@ class BitmapProblem(Basic2DProblem):
 
 
 class ObstacleProblem(Basic2DProblem):
+    ''' Problem with 2-D state space and circular obstacles. TODO: support obstacles with other shapes. '''
 
     def __init__(self, x_min=0.0, x_max=1.0, y_min=0.0, y_max=1.0, init=(0.5, 0.5), goal=(1.0, 1.0), max_step=0.05, goal_tolerance=0.01, obstacles=None):
+        ''' Takes obstacles as a list of circles represented as ((x_center, y_center), radius). '''
+
         super(ObstacleProblem, self).__init__(x_min, x_max, y_min, y_max, init, goal, max_step, goal_tolerance)
 
         if obstacles:
@@ -154,6 +166,13 @@ class ObstacleProblem(Basic2DProblem):
         else:
             self.obstacles = self.generate_obstacles(10, 0.1)
 
+    def random_state(self):
+        ''' Return a random valid state (within bounds and not within an obstacle). ''' 
+        valid = False
+        while not valid:
+            (x, y) = super(ObstacleProblem, self).random_state()
+            valid = (not self.collides((x, y)))
+        return (x, y)
 
     def generate_obstacles(self, n, max_radius):
         ''' Returns a list of n randomly generated circles represented as ((x_center, y_center), radius). '''

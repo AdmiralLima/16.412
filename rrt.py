@@ -2,61 +2,36 @@ from sys import maxint
 from random import uniform
 from vis import Visualizer
 
-class Problem(object):
-    def __init__(self):
-        pass
-
-    def random_state(self):
-        raise NotImplementedError( "Should have implemented this" )
-
-    def new_state(self, x1, x2, reverse=False):
-        ''' Selects an input that would move state x1 towards state x2 and returns 
-            the new state together with the input. The new state should be a valid
-            state (in the region of allowed states).
-
-            Input arguments:
-            - x1: current state
-            - x2: desired state
-
-            Returns:
-            - x: a state closer to x2 than x1. Can be null if x1 is forbidden or 
-                 no such state exists.
-            - u: input required to move from state x1 to x
-        '''
-        raise NotImplementedError( "Should have implemented this" )
-
-    def metric(self, x1, x2):
-        ''' Metric used by the solver to find nearest neighbors. '''
-        raise NotImplementedError( "Should have implemented this" )
-
-    def goal_reached(self, x):
-        ''' Returns True if the state is equal to the goal state or close to it.
-
-            It is up to the user to define what is considered close.
-        '''
-        raise NotImplementedError( "Should have implemented this" )
-
-    def setup_vis(self):
-        ''' Initializes and returns Visualizer with specific problem parameters.'''
-        raise NotImplementedError( "Should have implemented this" )
-
-# assumes Problem has methods:
-# - random_state() -> state (tuple)
-# - metric(state1, state2) -> distance (int or float)
-# - new_state(state1, state2, time_step) -> state, input
-# - goal_reached(state) -> boolean
-# - setup_vis() -> Visualizer
+''' Module rrt provides a framework for RRT path planners. To use an RRT, initialize it with a Problem instance, and then call build_rrt(...). 
+'''
 
 
 class RRTBase(object):
+    ''' Abstract base class for RRT solvers. Provides standard implementations of extend(), nearest_neighbor(), and visualize(). Derived classes must implement method build_rrt(). '''
 
     def __init__(self, problem):
+        ''' Initializes RRT with a Problem object. '''
         self.P = problem
 
     def build_rrt(self, x_init, x_goal, max_iter, goal_bias, show_vis):
+        ''' Abstract method. Builds RRT, given start state, goal state, and algorithm parameters.
+
+            Parameters:
+            - max_iter: maximum number of iterations before terminating.
+            - goal_bias: probability of using goal state as random state in any given iteration.
+            - show_vis: boolean flag whether or not to show visualization.
+        '''
         raise NotImplementedError("Should have implemented this")
 
     def extend(self, tree, x, reverse=False):
+        ''' Extends tree in direction of state x:
+            1. Finds tree's nearest neighbor to x.
+            2. Finds an intermediate state that extends tree toward x.
+            3. Adds new node and edge to tree and returns the new state.
+               If reverse=False, the edge (input) goes from the nearest neighbor to the new node.
+               If reverse=True, the edge (input) goes from the new node to the nearest neighbor.
+               If a new state was not found, returns None.
+        '''
         nearest_node = self.nearest_neighbor(tree, x)
 
         (x_new, u_new) = self.P.new_state(nearest_node.data, x, reverse=reverse)
@@ -69,7 +44,6 @@ class RRTBase(object):
 
     def nearest_neighbor(self, tree, x):
         ''' Returns node in tree with minimum distance to x, as defined by the P.metric function. '''
-        
         min_dist = maxint
         nearest_node = None
         for node in tree.nodes:
@@ -80,6 +54,7 @@ class RRTBase(object):
         return nearest_node
 
     def visualize(self, tree, final_state=None, x_goal=None, color='k', show=True):
+        ''' Creates and displays visualization for a (solved) RRT. '''
         v = self.P.setup_vis()
         for n in tree.nodes:
             if n.parent:
@@ -94,6 +69,7 @@ class RRTBase(object):
 
 
 class RRT(RRTBase):
+    ''' Basic RRT implementation. '''
 
     def build_rrt(self, x_init, x_goal, max_iter=100, goal_bias=0, show_vis=True):
         ''' Builds RRT, given start state, goal state, and other algorithm parameters.
@@ -101,8 +77,8 @@ class RRT(RRTBase):
             Input arguments:
             - x_init: start state
             - x_goal: goal state
-            - max_iter: maximum number of iterations. default=100
-            - goal_bias: probability of sampling x_goal. default=0
+            - max_iter: maximum number of iterations before terminating
+            - goal_bias: probability of sampling x_goal
             - vis_steps: visualize each step as new nodes are added
             
             Returns:
@@ -149,37 +125,49 @@ class RRT(RRTBase):
 
 
 class BIRRT(RRTBase):
+    ''' Bidirectional RRT solver. '''
 
     def build_rrt(self, x_init, x_goal, max_iter, show_vis=True):
-        ''' Builds RRT, given start state, goal state, and max number of iterations.
+        ''' Builds bidirectional RRT, given start state, goal state, and max number of iterations.
 
             Input arguments:
             - x_init: start state
-            - max_iter: maximum number of iterations
+            - x_goal: goal state
+            - max_iter: maximum number of iterations before terminating
+            - show_vis: boolean flag whether or not to show visualization
             
             Returns:
             - State x such that goal_reached(x) is true.
             - None if goal state is not reached before max number of iterations.
         '''
-        t_init = Tree(x_init); t_goal = Tree(x_goal)
+        t_init = Tree(x_init)
+        t_goal = Tree(x_goal)
 
-        counter = 0; t1 = t_init; t2 = t_goal; reverse=False
+        counter = 0
+        t1 = t_init
+        t2 = t_goal
+        reverse=False
         while counter < max_iter:
             x_rand = self.P.random_state()
             
+            # extends tree 1 toward random state
             x_new1 = self.extend(t1, x_rand, reverse)
             if x_new1 is not None:
+                # extends tree 2 toward new state just added to tree 1
                 x_new2 = self.extend(t2, x_new1, not reverse)
+
                 if x_new1 == x_new2:
+                    print('Reached goal in %d iterations' % counter)
                     if show_vis:
                         self.visualize(t1, t2, x_new1)
                     return x_new1, t_init, t_goal
 
-            t1,t2 = t2,t1
+            t1, t2 = t2, t1
             reverse = not reverse
             counter += 1
 
         # max iterations reached before trees connected
+        print('Reached max number of iterations (%d)' % max_iter)
         if show_vis:
             self.visualize(t1, t2)
 
@@ -191,10 +179,15 @@ class BIRRT(RRTBase):
     
 
 class Node(object):
+    ''' Implementation of tree nodes. Each node stores:
+        - data: the state that the node represents (expected as a tuple)
+        - parent: a single parent node
+        - incoming_edge: the input that transitions from the parent state to this state
+    '''
     
     def __init__(self, data, parent=None, incoming_edge=None):
         ''' Input arguments:
-        - data: probably represented as a tuple
+        - data: state, probably represented as a tuple
         - parent: Node object
         - incoming_edge: input that transitions from parent state to this state
         '''
@@ -205,6 +198,8 @@ class Node(object):
 
 
 class Tree(object):
+    ''' Basic tree implementation. ''' 
+
     def __init__(self, root):
         self.root = Node(root) # not currently used, but could be useful
         self.nodes = [self.root] # list of nodes in tree

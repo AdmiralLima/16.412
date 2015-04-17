@@ -1,0 +1,259 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module rrt</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>rrt</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:///C:/users/scrumbley/documents/2014-2015/6.834/rrt/rrt.py">c:\users\scrumbley\documents\2014-2015\6.834\rrt\rrt.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="__builtin__.html#object">__builtin__.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="rrt.html#Node">Node</a>
+</font></dt><dt><font face="helvetica, arial"><a href="rrt.html#RRTBase">RRTBase</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="rrt.html#BIRRT">BIRRT</a>
+</font></dt><dt><font face="helvetica, arial"><a href="rrt.html#RRT">RRT</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="rrt.html#Tree">Tree</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="BIRRT">class <strong>BIRRT</strong></a>(<a href="rrt.html#RRTBase">RRTBase</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Bidirectional&nbsp;<a href="#RRT">RRT</a>&nbsp;solver.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="rrt.html#BIRRT">BIRRT</a></dd>
+<dd><a href="rrt.html#RRTBase">RRTBase</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="BIRRT-build_rrt"><strong>build_rrt</strong></a>(self, x_init, x_goal, max_iter, show_vis<font color="#909090">=True</font>)</dt><dd><tt>Builds&nbsp;bidirectional&nbsp;<a href="#RRT">RRT</a>,&nbsp;given&nbsp;start&nbsp;state,&nbsp;goal&nbsp;state,&nbsp;and&nbsp;max&nbsp;number&nbsp;of&nbsp;iterations.<br>
+&nbsp;<br>
+Input&nbsp;arguments:<br>
+-&nbsp;x_init:&nbsp;start&nbsp;state<br>
+-&nbsp;x_goal:&nbsp;goal&nbsp;state<br>
+-&nbsp;max_iter:&nbsp;maximum&nbsp;number&nbsp;of&nbsp;iterations&nbsp;before&nbsp;terminating<br>
+-&nbsp;show_vis:&nbsp;boolean&nbsp;flag&nbsp;whether&nbsp;or&nbsp;not&nbsp;to&nbsp;show&nbsp;visualization<br>
+&nbsp;<br>
+Returns:<br>
+-&nbsp;State&nbsp;x&nbsp;such&nbsp;that&nbsp;goal_reached(x)&nbsp;is&nbsp;true.<br>
+-&nbsp;None&nbsp;if&nbsp;goal&nbsp;state&nbsp;is&nbsp;not&nbsp;reached&nbsp;before&nbsp;max&nbsp;number&nbsp;of&nbsp;iterations.</tt></dd></dl>
+
+<dl><dt><a name="BIRRT-visualize"><strong>visualize</strong></a>(self, tree1, tree2, final_state<font color="#909090">=None</font>)</dt></dl>
+
+<hr>
+Methods inherited from <a href="rrt.html#RRTBase">RRTBase</a>:<br>
+<dl><dt><a name="BIRRT-__init__"><strong>__init__</strong></a>(self, problem)</dt><dd><tt>Initializes&nbsp;<a href="#RRT">RRT</a>&nbsp;with&nbsp;a&nbsp;Problem&nbsp;<a href="__builtin__.html#object">object</a>.</tt></dd></dl>
+
+<dl><dt><a name="BIRRT-extend"><strong>extend</strong></a>(self, tree, x, reverse<font color="#909090">=False</font>)</dt><dd><tt>Extends&nbsp;tree&nbsp;in&nbsp;direction&nbsp;of&nbsp;state&nbsp;x:<br>
+1.&nbsp;Finds&nbsp;tree's&nbsp;nearest&nbsp;neighbor&nbsp;to&nbsp;x.<br>
+2.&nbsp;Finds&nbsp;an&nbsp;intermediate&nbsp;state&nbsp;that&nbsp;extends&nbsp;tree&nbsp;toward&nbsp;x.<br>
+3.&nbsp;Adds&nbsp;new&nbsp;node&nbsp;and&nbsp;edge&nbsp;to&nbsp;tree&nbsp;and&nbsp;returns&nbsp;the&nbsp;new&nbsp;state.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;reverse=False,&nbsp;the&nbsp;edge&nbsp;(input)&nbsp;goes&nbsp;from&nbsp;the&nbsp;nearest&nbsp;neighbor&nbsp;to&nbsp;the&nbsp;new&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;reverse=True,&nbsp;the&nbsp;edge&nbsp;(input)&nbsp;goes&nbsp;from&nbsp;the&nbsp;new&nbsp;node&nbsp;to&nbsp;the&nbsp;nearest&nbsp;neighbor.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;a&nbsp;new&nbsp;state&nbsp;was&nbsp;not&nbsp;found,&nbsp;returns&nbsp;None.</tt></dd></dl>
+
+<dl><dt><a name="BIRRT-nearest_neighbor"><strong>nearest_neighbor</strong></a>(self, tree, x)</dt><dd><tt>Returns&nbsp;node&nbsp;in&nbsp;tree&nbsp;with&nbsp;minimum&nbsp;distance&nbsp;to&nbsp;x,&nbsp;as&nbsp;defined&nbsp;by&nbsp;the&nbsp;P.metric&nbsp;function.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="rrt.html#RRTBase">RRTBase</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Node">class <strong>Node</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Implementation&nbsp;of&nbsp;tree&nbsp;nodes.&nbsp;Each&nbsp;node&nbsp;stores:<br>
+-&nbsp;data:&nbsp;the&nbsp;state&nbsp;that&nbsp;the&nbsp;node&nbsp;represents&nbsp;(expected&nbsp;as&nbsp;a&nbsp;tuple)<br>
+-&nbsp;parent:&nbsp;a&nbsp;single&nbsp;parent&nbsp;node<br>
+-&nbsp;incoming_edge:&nbsp;the&nbsp;input&nbsp;that&nbsp;transitions&nbsp;from&nbsp;the&nbsp;parent&nbsp;state&nbsp;to&nbsp;this&nbsp;state<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Node-__init__"><strong>__init__</strong></a>(self, data, parent<font color="#909090">=None</font>, incoming_edge<font color="#909090">=None</font>)</dt><dd><tt>Input&nbsp;arguments:<br>
+-&nbsp;data:&nbsp;state,&nbsp;probably&nbsp;represented&nbsp;as&nbsp;a&nbsp;tuple<br>
+-&nbsp;parent:&nbsp;<a href="#Node">Node</a>&nbsp;<a href="__builtin__.html#object">object</a><br>
+-&nbsp;incoming_edge:&nbsp;input&nbsp;that&nbsp;transitions&nbsp;from&nbsp;parent&nbsp;state&nbsp;to&nbsp;this&nbsp;state</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RRT">class <strong>RRT</strong></a>(<a href="rrt.html#RRTBase">RRTBase</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Basic&nbsp;<a href="#RRT">RRT</a>&nbsp;implementation.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="rrt.html#RRT">RRT</a></dd>
+<dd><a href="rrt.html#RRTBase">RRTBase</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="RRT-build_rrt"><strong>build_rrt</strong></a>(self, x_init, x_goal, max_iter<font color="#909090">=100</font>, goal_bias<font color="#909090">=0</font>, show_vis<font color="#909090">=True</font>)</dt><dd><tt>Builds&nbsp;<a href="#RRT">RRT</a>,&nbsp;given&nbsp;start&nbsp;state,&nbsp;goal&nbsp;state,&nbsp;and&nbsp;other&nbsp;algorithm&nbsp;parameters.<br>
+&nbsp;<br>
+Input&nbsp;arguments:<br>
+-&nbsp;x_init:&nbsp;start&nbsp;state<br>
+-&nbsp;x_goal:&nbsp;goal&nbsp;state<br>
+-&nbsp;max_iter:&nbsp;maximum&nbsp;number&nbsp;of&nbsp;iterations&nbsp;before&nbsp;terminating<br>
+-&nbsp;goal_bias:&nbsp;probability&nbsp;of&nbsp;sampling&nbsp;x_goal<br>
+-&nbsp;vis_steps:&nbsp;visualize&nbsp;each&nbsp;step&nbsp;as&nbsp;new&nbsp;nodes&nbsp;are&nbsp;added<br>
+&nbsp;<br>
+Returns:<br>
+-&nbsp;State&nbsp;x&nbsp;such&nbsp;that&nbsp;goal_reached(x)&nbsp;is&nbsp;true.<br>
+-&nbsp;None&nbsp;if&nbsp;goal&nbsp;state&nbsp;is&nbsp;not&nbsp;reached&nbsp;before&nbsp;max&nbsp;number&nbsp;of&nbsp;iterations.</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="rrt.html#RRTBase">RRTBase</a>:<br>
+<dl><dt><a name="RRT-__init__"><strong>__init__</strong></a>(self, problem)</dt><dd><tt>Initializes&nbsp;<a href="#RRT">RRT</a>&nbsp;with&nbsp;a&nbsp;Problem&nbsp;<a href="__builtin__.html#object">object</a>.</tt></dd></dl>
+
+<dl><dt><a name="RRT-extend"><strong>extend</strong></a>(self, tree, x, reverse<font color="#909090">=False</font>)</dt><dd><tt>Extends&nbsp;tree&nbsp;in&nbsp;direction&nbsp;of&nbsp;state&nbsp;x:<br>
+1.&nbsp;Finds&nbsp;tree's&nbsp;nearest&nbsp;neighbor&nbsp;to&nbsp;x.<br>
+2.&nbsp;Finds&nbsp;an&nbsp;intermediate&nbsp;state&nbsp;that&nbsp;extends&nbsp;tree&nbsp;toward&nbsp;x.<br>
+3.&nbsp;Adds&nbsp;new&nbsp;node&nbsp;and&nbsp;edge&nbsp;to&nbsp;tree&nbsp;and&nbsp;returns&nbsp;the&nbsp;new&nbsp;state.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;reverse=False,&nbsp;the&nbsp;edge&nbsp;(input)&nbsp;goes&nbsp;from&nbsp;the&nbsp;nearest&nbsp;neighbor&nbsp;to&nbsp;the&nbsp;new&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;reverse=True,&nbsp;the&nbsp;edge&nbsp;(input)&nbsp;goes&nbsp;from&nbsp;the&nbsp;new&nbsp;node&nbsp;to&nbsp;the&nbsp;nearest&nbsp;neighbor.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;a&nbsp;new&nbsp;state&nbsp;was&nbsp;not&nbsp;found,&nbsp;returns&nbsp;None.</tt></dd></dl>
+
+<dl><dt><a name="RRT-nearest_neighbor"><strong>nearest_neighbor</strong></a>(self, tree, x)</dt><dd><tt>Returns&nbsp;node&nbsp;in&nbsp;tree&nbsp;with&nbsp;minimum&nbsp;distance&nbsp;to&nbsp;x,&nbsp;as&nbsp;defined&nbsp;by&nbsp;the&nbsp;P.metric&nbsp;function.</tt></dd></dl>
+
+<dl><dt><a name="RRT-visualize"><strong>visualize</strong></a>(self, tree, final_state<font color="#909090">=None</font>, x_goal<font color="#909090">=None</font>, color<font color="#909090">='k'</font>, show<font color="#909090">=True</font>)</dt><dd><tt>Creates&nbsp;and&nbsp;displays&nbsp;visualization&nbsp;for&nbsp;a&nbsp;(solved)&nbsp;<a href="#RRT">RRT</a>.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="rrt.html#RRTBase">RRTBase</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RRTBase">class <strong>RRTBase</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Abstract&nbsp;base&nbsp;class&nbsp;for&nbsp;<a href="#RRT">RRT</a>&nbsp;solvers.&nbsp;Provides&nbsp;standard&nbsp;implementations&nbsp;of&nbsp;<a href="#RRTBase-extend">extend</a>(),&nbsp;<a href="#RRTBase-nearest_neighbor">nearest_neighbor</a>(),&nbsp;and&nbsp;<a href="#RRTBase-visualize">visualize</a>().&nbsp;Derived&nbsp;classes&nbsp;must&nbsp;implement&nbsp;method&nbsp;<a href="#RRTBase-build_rrt">build_rrt</a>().<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="RRTBase-__init__"><strong>__init__</strong></a>(self, problem)</dt><dd><tt>Initializes&nbsp;<a href="#RRT">RRT</a>&nbsp;with&nbsp;a&nbsp;Problem&nbsp;<a href="__builtin__.html#object">object</a>.</tt></dd></dl>
+
+<dl><dt><a name="RRTBase-build_rrt"><strong>build_rrt</strong></a>(self, x_init, x_goal, max_iter, goal_bias, show_vis)</dt><dd><tt>Abstract&nbsp;method.&nbsp;Builds&nbsp;<a href="#RRT">RRT</a>,&nbsp;given&nbsp;start&nbsp;state,&nbsp;goal&nbsp;state,&nbsp;and&nbsp;algorithm&nbsp;parameters.<br>
+&nbsp;<br>
+Parameters:<br>
+-&nbsp;max_iter:&nbsp;maximum&nbsp;number&nbsp;of&nbsp;iterations&nbsp;before&nbsp;terminating.<br>
+-&nbsp;goal_bias:&nbsp;probability&nbsp;of&nbsp;using&nbsp;goal&nbsp;state&nbsp;as&nbsp;random&nbsp;state&nbsp;in&nbsp;any&nbsp;given&nbsp;iteration.<br>
+-&nbsp;show_vis:&nbsp;boolean&nbsp;flag&nbsp;whether&nbsp;or&nbsp;not&nbsp;to&nbsp;show&nbsp;visualization.</tt></dd></dl>
+
+<dl><dt><a name="RRTBase-extend"><strong>extend</strong></a>(self, tree, x, reverse<font color="#909090">=False</font>)</dt><dd><tt>Extends&nbsp;tree&nbsp;in&nbsp;direction&nbsp;of&nbsp;state&nbsp;x:<br>
+1.&nbsp;Finds&nbsp;tree's&nbsp;nearest&nbsp;neighbor&nbsp;to&nbsp;x.<br>
+2.&nbsp;Finds&nbsp;an&nbsp;intermediate&nbsp;state&nbsp;that&nbsp;extends&nbsp;tree&nbsp;toward&nbsp;x.<br>
+3.&nbsp;Adds&nbsp;new&nbsp;node&nbsp;and&nbsp;edge&nbsp;to&nbsp;tree&nbsp;and&nbsp;returns&nbsp;the&nbsp;new&nbsp;state.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;reverse=False,&nbsp;the&nbsp;edge&nbsp;(input)&nbsp;goes&nbsp;from&nbsp;the&nbsp;nearest&nbsp;neighbor&nbsp;to&nbsp;the&nbsp;new&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;reverse=True,&nbsp;the&nbsp;edge&nbsp;(input)&nbsp;goes&nbsp;from&nbsp;the&nbsp;new&nbsp;node&nbsp;to&nbsp;the&nbsp;nearest&nbsp;neighbor.<br>
+&nbsp;&nbsp;&nbsp;If&nbsp;a&nbsp;new&nbsp;state&nbsp;was&nbsp;not&nbsp;found,&nbsp;returns&nbsp;None.</tt></dd></dl>
+
+<dl><dt><a name="RRTBase-nearest_neighbor"><strong>nearest_neighbor</strong></a>(self, tree, x)</dt><dd><tt>Returns&nbsp;node&nbsp;in&nbsp;tree&nbsp;with&nbsp;minimum&nbsp;distance&nbsp;to&nbsp;x,&nbsp;as&nbsp;defined&nbsp;by&nbsp;the&nbsp;P.metric&nbsp;function.</tt></dd></dl>
+
+<dl><dt><a name="RRTBase-visualize"><strong>visualize</strong></a>(self, tree, final_state<font color="#909090">=None</font>, x_goal<font color="#909090">=None</font>, color<font color="#909090">='k'</font>, show<font color="#909090">=True</font>)</dt><dd><tt>Creates&nbsp;and&nbsp;displays&nbsp;visualization&nbsp;for&nbsp;a&nbsp;(solved)&nbsp;<a href="#RRT">RRT</a>.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Tree">class <strong>Tree</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Basic&nbsp;tree&nbsp;implementation.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Tree-__init__"><strong>__init__</strong></a>(self, root)</dt></dl>
+
+<dl><dt><a name="Tree-add_node"><strong>add_node</strong></a>(self, data, parent_node, edge)</dt><dd><tt>Adds&nbsp;a&nbsp;node&nbsp;to&nbsp;the&nbsp;tree.<br>
+&nbsp;<br>
+Input&nbsp;arguments:<br>
+-&nbsp;x_new:&nbsp;new&nbsp;state&nbsp;to&nbsp;be&nbsp;added.<br>
+-&nbsp;parent_node:&nbsp;<a href="#Node">Node</a>&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;that&nbsp;is&nbsp;parent&nbsp;of&nbsp;new&nbsp;node.<br>
+-&nbsp;edge:&nbsp;input&nbsp;action&nbsp;that&nbsp;transitions&nbsp;from&nbsp;parent&nbsp;state&nbsp;to&nbsp;new&nbsp;state.</tt></dd></dl>
+
+<dl><dt><a name="Tree-get_node"><strong>get_node</strong></a>(self, state)</dt><dd><tt>Given&nbsp;a&nbsp;state,&nbsp;returns&nbsp;the&nbsp;corresponding&nbsp;node&nbsp;in&nbsp;the&nbsp;tree.<br>
+&nbsp;<br>
+Input&nbsp;arguments:<br>
+-&nbsp;state:&nbsp;desired&nbsp;state.&nbsp;If&nbsp;len(state)&nbsp;=&nbsp;s,&nbsp;the&nbsp;function&nbsp;will&nbsp;search&nbsp;for&nbsp;a&nbsp;node&nbsp;such&nbsp;that&nbsp;the&nbsp;first&nbsp;s&nbsp;elements&nbsp;of&nbsp;node.data&nbsp;are&nbsp;equal&nbsp;to&nbsp;state.<br>
+&nbsp;<br>
+Returns:<br>
+-&nbsp;first&nbsp;<a href="#Node">Node</a>&nbsp;in&nbsp;the&nbsp;tree&nbsp;that&nbsp;corresponds&nbsp;to&nbsp;the&nbsp;input&nbsp;state.&nbsp;<br>
+-&nbsp;None&nbsp;if&nbsp;the&nbsp;tree&nbsp;doesn't&nbsp;have&nbsp;a&nbsp;node&nbsp;representing&nbsp;the&nbsp;desired&nbsp;state.</tt></dd></dl>
+
+<dl><dt><a name="Tree-get_path"><strong>get_path</strong></a>(self, x_goal)</dt><dd><tt>Returns&nbsp;path&nbsp;from&nbsp;start&nbsp;state&nbsp;to&nbsp;goal&nbsp;state.<br>
+&nbsp;<br>
+Input&nbsp;arguments:<br>
+-&nbsp;x_goal:&nbsp;goal&nbsp;state.<br>
+&nbsp;<br>
+Returns:&nbsp;<br>
+-&nbsp;path:&nbsp;list&nbsp;of&nbsp;states.<br>
+-&nbsp;inputs:&nbsp;list&nbsp;of&nbsp;inputs&nbsp;to&nbsp;get&nbsp;from&nbsp;start&nbsp;state&nbsp;to&nbsp;goal&nbsp;state.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>maxint</strong> = 2147483647</td></tr></table>
+</body></html>
