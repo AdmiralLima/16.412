@@ -10,4 +10,4 @@ if __name__ == '__main__':
 
 	# Solve
 	solver = rrt.RRT(problem)
-	final_state,tree = solver.build_rrt(problem.x_init, problem.x_goal, 500, 0.1)
+	final_state,tree = solver.build_rrt(problem.x_init, problem.x_goal, 500, 0.1, show_vis=True)

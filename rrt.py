@@ -13,7 +13,9 @@ class RRTBase(object):
         ''' Initializes RRT with a Problem object. '''
         self.P = problem
 
-    def build_rrt(self, x_init, x_goal, max_iter, goal_bias, show_vis):
+        self._iterations_executed = 0
+
+    def build_rrt(self, x_init, x_goal, max_iter, goal_bias, show_vis=False):
         ''' Abstract method. Builds RRT, given start state, goal state, and algorithm parameters.
 
             Parameters:
@@ -71,7 +73,7 @@ class RRTBase(object):
 class RRT(RRTBase):
     ''' Basic RRT implementation. '''
 
-    def build_rrt(self, x_init, x_goal, max_iter=100, goal_bias=0, show_vis=True):
+    def build_rrt(self, x_init, x_goal, max_iter=100, goal_bias=0, show_vis=False, print_debug=False):
         ''' Builds RRT, given start state, goal state, and other algorithm parameters.
 
             Input arguments:
@@ -85,6 +87,7 @@ class RRT(RRTBase):
             - State x such that goal_reached(x) is true.
             - None if goal state is not reached before max number of iterations.
         '''
+        self._iterations_executed = 0 
 
         tree = Tree(x_init)
 
@@ -93,8 +96,8 @@ class RRT(RRTBase):
 
         counter = 0
         while counter < max_iter:
-
             counter += 1
+            self._iterations_executed += 1
 
             # select a random state with probability = 1-goal_bias,
             # or the goal state with probability = goal_bias
@@ -107,8 +110,9 @@ class RRT(RRTBase):
             x_new = self.extend(tree, x_rand)
 
             if x_new and self.P.goal_reached(x_new):
-                print('Reached goal in %d iterations' % counter)
-                print('Final state: %s' % (x_new,))
+                if print_debug:
+                    print('Reached goal in %d iterations' % counter)
+                    print('Final state: %s' % (x_new,))
                 
                 if show_vis:
                     self.visualize(tree, x_new, x_goal=x_goal)
@@ -116,7 +120,8 @@ class RRT(RRTBase):
                 return x_new, tree
 
         # goal not reached
-        print('Reached max number of iterations (%d)' % max_iter)
+        if print_debug:
+            print('Reached max number of iterations (%d)' % max_iter)
 
         if show_vis:
             self.visualize(tree, x_goal=x_goal)
@@ -127,7 +132,7 @@ class RRT(RRTBase):
 class BIRRT(RRTBase):
     ''' Bidirectional RRT solver. '''
 
-    def build_rrt(self, x_init, x_goal, max_iter, show_vis=True):
+    def build_rrt(self, x_init, x_goal, max_iter, show_vis=False, print_debug=False):
         ''' Builds bidirectional RRT, given start state, goal state, and max number of iterations.
 
             Input arguments:
@@ -143,11 +148,16 @@ class BIRRT(RRTBase):
         t_init = Tree(x_init)
         t_goal = Tree(x_goal)
 
+        self._iterations_executed = 0 
+
         counter = 0
         t1 = t_init
         t2 = t_goal
         reverse=False
         while counter < max_iter:
+            counter += 1
+            self._iterations_executed += 1
+
             x_rand = self.P.random_state()
             
             # extends tree 1 toward random state
@@ -157,17 +167,19 @@ class BIRRT(RRTBase):
                 x_new2 = self.extend(t2, x_new1, not reverse)
 
                 if x_new1 == x_new2:
-                    print('Reached goal in %d iterations' % counter)
+                    if print_debug:
+                        print('Reached goal in %d iterations' % counter)
                     if show_vis:
                         self.visualize(t1, t2, x_new1)
                     return x_new1, t_init, t_goal
 
             t1, t2 = t2, t1
             reverse = not reverse
-            counter += 1
+            
 
         # max iterations reached before trees connected
-        print('Reached max number of iterations (%d)' % max_iter)
+        if print_debug:
+            print('Reached max number of iterations (%d)' % max_iter)
         if show_vis:
             self.visualize(t1, t2)
 
