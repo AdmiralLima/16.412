@@ -19,3 +19,5 @@ if __name__ == '__main__':
 	#solver = rrt.RRT(problem)
 	solver = rrt.BIRRT(problem)
 	final_state,tree1,tree2 = solver.build_rrt(problem.x_init, problem.x_goal, 10000, show_vis=True)
+
+	print solver.get_solution_from_tree(final_state,tree1,tree2)

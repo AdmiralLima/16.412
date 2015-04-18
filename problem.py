@@ -11,7 +11,10 @@ class Problem(object):
         raise NotImplementedError( "Should have implemented this" )
 
     def random_state(self):
-        ''' Returns a random state within the allowable state space. '''
+        ''' Returns a random state within the state space bounds. 
+
+            The state does not need to be valid.
+        '''
         raise NotImplementedError( "Should have implemented this" )
 
     def new_state(self, x1, x2, reverse=False):

@@ -62,7 +62,7 @@ class RRTBase(object):
             if n.parent:
                 v.draw_edge(n.parent.data, n.data, color=color)
         if final_state:
-            v.draw_solution([x.data for x in tree.get_path(final_state)[0]], color=color)
+            v.draw_solution(tree.get_path(final_state)[0], color=color)
         v.draw_initial(tree.root.data)
         if x_goal:
             v.draw_goal(x_goal)
@@ -128,6 +128,12 @@ class RRT(RRTBase):
 
         return None, tree
 
+    def get_solution_from_tree(self, final_state, tree):
+        if final_state is not None:
+            return tree.get_path(final_state)
+        else:
+            return None, None
+
 
 class BIRRT(RRTBase):
     ''' Bidirectional RRT solver. '''
@@ -188,6 +194,15 @@ class BIRRT(RRTBase):
     def visualize(self, tree1, tree2, final_state=None):
         super(BIRRT, self).visualize(tree1, final_state, show=False)
         super(BIRRT, self).visualize(tree2, final_state, color='b')
+
+    def get_solution_from_tree(self, final_state, init_tree, goal_tree):
+        if final_state is not None:
+            states1,inputs1 = init_tree.get_path(final_state)
+            states2,inputs2 = init_tree.get_path(final_state)
+            states2.reverse(); inputs2.reverse()
+            return states1+states2[1:], inputs1+inputs2
+        else:
+            return None, None
     
 
 class Node(object):
@@ -258,7 +273,10 @@ class Tree(object):
         path = []
         inputs = []
         while node: # this should iterate until it reaches the root node
-            path.append(node)
-            inputs.append(node.incoming_edge)
+            path.append(node.data)
+            if node.incoming_edge is not None:
+                inputs.append(node.incoming_edge)
             node = node.parent
+        path.reverse()
+        inputs.reverse()
         return path, inputs
