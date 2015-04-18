@@ -239,6 +239,8 @@ class Tree(object):
         - parent_node: Node object that is parent of new node.
         - edge: input action that transitions from parent state to new state.
         '''
+        assert isinstance(parent_node, Node), 'parent_node should be a Node instance'
+
         new_node = Node(data, parent_node, edge)
         self.nodes.append(new_node)
         parent_node.children.append(new_node)
@@ -274,9 +276,9 @@ class Tree(object):
         inputs = []
         while node: # this should iterate until it reaches the root node
             path.append(node.data)
-            if node.incoming_edge is not None:
-                inputs.append(node.incoming_edge)
+            inputs.append(node.incoming_edge)
             node = node.parent
         path.reverse()
+        inputs = inputs[:-1] # last input is None for root
         inputs.reverse()
         return path, inputs
